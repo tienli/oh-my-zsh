@@ -1,6 +1,21 @@
 # Outputs current branch info in prompt format
+function in_git_dir() {
+  local xcwd
+  [[ "$(pwd)" = "/" ]] && xcwd="/" || xcwd="${0:A:h}"
+  cd $xcwd
+  while
+    [[ -d .git ]] && return 0
+    [[ "$xcwd" != "/" ]]	# This is the test
+  do
+    xcwd=$(readlink -f "$xcwd"/..)
+    cd ..
+  done
+  return 1
+}
+
 function git_prompt_info() {
   local ref
+  in_git_dir || return;
   if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" != "1" ]]; then
     ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
     ref=$(command git rev-parse --short HEAD 2> /dev/null) || return 0
@@ -132,6 +147,7 @@ function git_prompt_long_sha() {
 # Get the status of the working tree
 function git_prompt_status() {
   local INDEX STATUS
+  in_git_dir || return;
   INDEX=$(command git status --porcelain -b 2> /dev/null)
   STATUS=""
   if $(echo "$INDEX" | command grep -E '^\?\? ' &> /dev/null); then
