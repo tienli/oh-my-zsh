@@ -93,6 +93,7 @@ prompt_git() {
     PL_BRANCH_CHAR=$'\ue0a0'         # 
   }
   local ref dirty mode repo_path
+	in_git_dir || return
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
